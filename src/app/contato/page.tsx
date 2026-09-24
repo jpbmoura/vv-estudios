@@ -38,7 +38,7 @@ export default function ContatoPage() {
           alt={contato.facadeAlt}
           sizes="(min-width: 768px) 40vw, 100vw"
           priority
-          parallax={5}
+          // Sem parallax: a ampliação que ele exige cortaria o letreiro "VILELA VIANNA" na borda
           className="aspect-[3/4] md:col-span-5 md:col-start-8"
         />
       </section>

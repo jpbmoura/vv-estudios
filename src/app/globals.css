@@ -1,26 +1,266 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-ink: #000000;
+  --color-ink-2: #0d0c0b;
+  --color-ink-3: #171513;
+  --color-bone: #ede6d8;
+  --color-mute: #a39d92;
+  --color-gold: #b8862f;
+  --color-gold-light: #d4a857;
+  --color-silver: #b5b5b5;
+  --color-line: rgb(237 230 216 / 0.12);
+
+  --font-display: var(--font-bodoni), "Didot", "Bodoni 72", serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-curtain: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --text-display: clamp(2.75rem, 1.6rem + 5vw, 6.5rem);
+  --text-display--line-height: 1.02;
+  --text-title: clamp(2.1rem, 1.5rem + 2.6vw, 4rem);
+  --text-title--line-height: 1.08;
+  --text-lead: clamp(1.2rem, 1.05rem + 0.6vw, 1.55rem);
+  --text-lead--line-height: 1.5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    background: var(--color-ink);
+    color-scheme: dark;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-gold);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-gold-light);
+    outline-offset: 4px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  /* Rótulo em caixa alta entre filetes, como o "ESTÚDIOS" da logo */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--color-gold-light);
+  }
+
+  .prose-vv > * + * {
+    margin-top: 1.25em;
+  }
+  .prose-vv strong {
+    font-weight: 600;
+    color: var(--color-bone);
+  }
+  .prose-vv em {
+    font-style: italic;
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.6s var(--ease-curtain);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible,
+  .link-underline[aria-current="page"] {
+    background-size: 100% 1px;
+  }
+}
+
+/* Grão de película sobre tudo, bem discreto */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+html[data-intro="seen"] .intro {
+  display: none;
+}
+
+/* Cortina: logo entra, segura, e a cortina sobe a partir de 1.4s */
+.intro {
+  animation: intro-out 1.1s var(--ease-curtain) 1.4s both;
+}
+.intro-logo {
+  animation:
+    intro-logo 1s var(--ease-curtain) both,
+    intro-logo-out 0.8s var(--ease-curtain) 1.35s forwards;
+}
+.intro-line {
+  transform-origin: center;
+  animation:
+    intro-line 1.2s var(--ease-curtain) 0.2s both,
+    intro-logo-out 0.8s var(--ease-curtain) 1.35s forwards;
+}
+@keyframes intro-out {
+  to {
+    clip-path: inset(0% 0% 100% 0%);
+    visibility: hidden;
+  }
+}
+@keyframes intro-logo {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+    filter: blur(6px);
+  }
+}
+@keyframes intro-logo-out {
+  to {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+@keyframes intro-line {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/*
+ * Entradas acima da dobra em CSS puro: começam na primeira pintura, sem esperar
+ * a hidratação (bom para o LCP). Na primeira visita esperam a cortina de abertura.
+ */
+.hero-in {
+  animation: hero-in 1.1s var(--ease-curtain) both;
+  animation-delay: var(--d, 0s);
+}
+.word-in {
+  display: inline-block;
+  animation: word-in 1s var(--ease-curtain) both;
+  animation-delay: var(--d, 0s);
+}
+html:not([data-intro="seen"]) :is(.hero-in, .word-in) {
+  animation-delay: calc(var(--d, 0s) + 1.35s);
+}
+.page-in {
+  animation: page-in 0.9s var(--ease-curtain) both;
+}
+.page-line {
+  transform-origin: left;
+  animation: page-line 1.2s var(--ease-curtain) both;
+}
+.img-in {
+  animation: img-in 1.4s var(--ease-curtain) both;
+  animation-delay: var(--d, 0s);
+}
+.img-in > * {
+  animation: img-zoom 1.8s var(--ease-curtain) both;
+  animation-delay: var(--d, 0s);
+}
+html:not([data-intro="seen"]) :is(.img-in, .img-in > *) {
+  animation-delay: calc(var(--d, 0s) + 1.2s);
+}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes page-line {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  60% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes img-in {
+  from {
+    clip-path: inset(100% 0% 0% 0%);
+  }
+  to {
+    clip-path: inset(0% 0% 0% 0%);
+  }
+}
+@keyframes img-zoom {
+  from {
+    transform: scale(1.12);
+  }
+}
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--y, 24px));
+  }
+}
+@keyframes word-in {
+  from {
+    transform: translateY(110%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(.intro, .hero-in, .word-in, .intro-logo, .intro-line, .page-in, .page-line, .img-in, .img-in > *) {
+    animation: none !important;
+  }
 }

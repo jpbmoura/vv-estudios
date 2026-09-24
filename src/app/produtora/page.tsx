@@ -38,8 +38,12 @@ export default function ProdutoraPage() {
         </FadeIn>
       </section>
 
+      <div aria-hidden className="container-page">
+        <div className="border-t border-line" />
+      </div>
+
       {/* Sua marca no teatro */}
-      <section className="container-page grid items-center gap-12 border-t border-line py-28 md:grid-cols-12 md:gap-16 md:py-40">
+      <section className="container-page grid items-center gap-12 py-28 md:grid-cols-12 md:gap-16 md:py-40">
         <div className="order-2 md:order-1 md:col-span-5">
           <FadeIn>
             <Eyebrow>Patrocínio e parcerias</Eyebrow>

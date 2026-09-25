@@ -1,10 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bodoni_Moda, Manrope } from "next/font/google";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { SmoothScroll } from "@/components/layout/SmoothScroll";
-import { WhatsAppFab } from "@/components/layout/WhatsAppFab";
-import { Intro, introScript } from "@/components/layout/Intro";
+import { introScript } from "@/components/layout/Intro";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -68,21 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: introScript }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
-      <body className="min-h-dvh">
-        <a
-          href="#conteudo"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink"
-        >
-          Pular para o conteúdo
-        </a>
-        <Intro />
-        <SmoothScroll />
-        <Header />
-        <main id="conteudo">{children}</main>
-        <Footer />
-        <WhatsAppFab />
-        <div className="grain" aria-hidden />
-      </body>
+      <body className="min-h-dvh">{children}</body>
     </html>
   );
 }

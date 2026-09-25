@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { HomeHero } from "@/components/home/HomeHero";
+import { UpcomingEvents } from "@/components/home/UpcomingEvents";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { RevealImage } from "@/components/motion/RevealImage";
 import { RevealText } from "@/components/motion/RevealText";
@@ -11,6 +12,9 @@ import { Rich } from "@/components/ui/Rich";
 import { contato } from "@/content/contato";
 import { home } from "@/content/home";
 import { whatsappLink } from "@/content/site";
+
+// Estática, mas refeita a cada 10 min (e na hora, quando o /adm altera a agenda) por causa dos próximos eventos
+export const revalidate = 600;
 
 export default function HomePage() {
   return (
@@ -85,6 +89,8 @@ export default function HomePage() {
           </ol>
         </div>
       </section>
+
+      <UpcomingEvents />
 
       {/* Caminhos */}
       <section className="container-page py-28 md:py-40">

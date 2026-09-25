@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { mailtoLink, nav, site, whatsappLink } from "@/content/site";
+import { mailtoLink, site, whatsappLink, type NavItem } from "@/content/site";
 
-export function Footer() {
+export function Footer({ nav }: { nav: NavItem[] }) {
   return (
     <footer className="border-t border-line bg-ink-2">
       <div className="container-page grid gap-14 py-20 md:grid-cols-12 md:py-24">

@@ -29,8 +29,16 @@ export const nav = [
   { href: "/professores", label: "Nossos Professores" },
   { href: "/convidados", label: "Nossos Convidados" },
   { href: "/planos", label: "Nossos Planos" },
+  { href: "/agenda", label: "Agenda" },
   { href: "/contato", label: "Contato" },
 ] as const;
+
+export type NavItem = (typeof nav)[number];
+
+/** Menu do site: a Agenda só entra quando está habilitada no /adm */
+export function visibleNav(showAgenda: boolean): NavItem[] {
+  return showAgenda ? [...nav] : nav.filter((item) => item.href !== "/agenda");
+}
 
 export function whatsappLink(message?: string) {
   const base = `https://wa.me/${site.whatsapp}`;

@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useEffect } from "react";
-import { nav, site, whatsappLink } from "@/content/site";
+import { site, whatsappLink, type NavItem } from "@/content/site";
 import { EASE } from "../motion/ease";
 
-export function MobileMenu({ pathname, onClose }: { pathname: string; onClose: () => void }) {
+export function MobileMenu({ nav, pathname, onClose }: { nav: NavItem[]; pathname: string; onClose: () => void }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);

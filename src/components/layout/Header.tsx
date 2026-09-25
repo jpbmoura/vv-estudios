@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "motion/react";
 import { useEffect, useState } from "react";
-import { nav } from "@/content/site";
+import type { NavItem } from "@/content/site";
 import { Logo } from "./Logo";
 import { MobileMenu } from "./MobileMenu";
 import { EASE } from "../motion/ease";
 
-export function Header() {
+export function Header({ nav }: { nav: NavItem[] }) {
   const pathname = usePathname();
   const { scrollY } = useScroll();
   const [solid, setSolid] = useState(false);
@@ -97,7 +97,7 @@ export function Header() {
         </div>
       </motion.header>
 
-      <AnimatePresence>{open && <MobileMenu pathname={pathname} onClose={() => setOpen(false)} />}</AnimatePresence>
+      <AnimatePresence>{open && <MobileMenu nav={nav} pathname={pathname} onClose={() => setOpen(false)} />}</AnimatePresence>
     </>
   );
 }

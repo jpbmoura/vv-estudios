@@ -19,6 +19,11 @@ const variants = {
   text: "text-gold-light hover:text-bone",
 };
 
+/** Mesmo visual para <button> (formulários do /adm), que o Button abaixo não cobre por ser link */
+export function buttonClass(variant: Props["variant"] = "solid", className = "") {
+  return `${base} ${variants[variant]} ${className}`;
+}
+
 export function Button({ href, children, variant = "solid", className = "" }: Props) {
   const external = /^(https?:|mailto:|tel:)/.test(href);
   const content = (
@@ -27,7 +32,7 @@ export function Button({ href, children, variant = "solid", className = "" }: Pr
       <Arrow />
     </>
   );
-  const cls = `${base} ${variants[variant]} ${className}`;
+  const cls = buttonClass(variant, className);
 
   if (external) {
     const newTab = href.startsWith("http");

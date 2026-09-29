@@ -11,18 +11,25 @@ type Props = {
   min?: YearMonth;
   /** Âncora da seção, para a página não pular ao topo (ex.: "grade") */
   hash?: string;
+  /** Parâmetros mantidos ao trocar de mês (ex.: "visao=grade") */
+  query?: string;
 };
 
 const linkClass =
   "group inline-flex items-center gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold-light transition-colors duration-500 hover:text-bone";
 
-export function MonthNav({ month, current, basePath, max, min, hash }: Props) {
+export function MonthNav({ month, current, basePath, max, min, hash, query }: Props) {
   const prev = shiftMonth(month, -1);
   const next = shiftMonth(month, 1);
   const hasPrev = !min || prev >= min;
   const hasNext = !max || next <= max;
   const anchor = hash ? `#${hash}` : "";
-  const href = (ym: YearMonth) => `${ym === current ? basePath : `${basePath}?mes=${ym}`}${anchor}`;
+  const href = (ym: YearMonth) => {
+    const params = new URLSearchParams(query);
+    if (ym !== current) params.set("mes", ym);
+    const search = params.toString();
+    return `${basePath}${search ? `?${search}` : ""}${anchor}`;
+  };
 
   return (
     <nav aria-label="Navegar entre meses" className="flex items-center justify-between gap-4 border-y border-line py-5">

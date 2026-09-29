@@ -1,19 +1,38 @@
 import Link from "next/link";
+import { EventList } from "@/components/agenda/EventList";
+import { MonthCalendar } from "@/components/agenda/MonthCalendar";
 import { MonthNav } from "@/components/agenda/MonthNav";
 import { DeleteButton } from "@/components/adm/DeleteButton";
 import { CancelOccurrenceButton, RestoreOccurrenceButton } from "@/components/adm/OccurrenceActions";
+import { ViewTabs } from "@/components/adm/ViewTabs";
+import { AlsoThisMonth } from "@/components/escola/AlsoThisMonth";
+import { WeeklyTimetable } from "@/components/escola/WeeklyTimetable";
 import { buttonClass } from "@/components/ui/Button";
-import { categoryLabel, occurrenceLabels } from "@/content/agenda";
-import { currentMonth, formatDay, formatDayNumeric, formatDayWeekday, formatHour, formatMonth, parseMonth, timeRange } from "@/lib/agenda/dates";
+import { adminViews, categoryLabel, occurrenceLabels, type AdminView } from "@/content/agenda";
+import { escola } from "@/content/escola";
+import {
+  currentMonth,
+  formatDay,
+  formatDayNumeric,
+  formatDayWeekday,
+  formatHour,
+  formatMonth,
+  formatMonthName,
+  parseMonth,
+  timeRange,
+  type YearMonth,
+} from "@/lib/agenda/dates";
 import { getMonthAgendaFresh, type AgendaEvent, type Occurrence } from "@/lib/agenda/queries";
 import { describeRecurrence } from "@/lib/agenda/recurrence";
+import { buildTimetable, splitMonth, type TimetableBlock } from "@/lib/agenda/timetable";
 import { getAgendaEnabledFresh } from "@/lib/settings";
 import { toggleAgenda } from "../actions";
 
 export default async function AdmPage({ searchParams }: PageProps<"/adm">) {
-  const { mes } = await searchParams;
+  const { mes, visao } = await searchParams;
   const current = currentMonth();
   const month = parseMonth(mes) ?? current;
+  const view: AdminView = adminViews.tabs.find((t) => t.value === visao)?.value ?? "lista";
   const [{ series, occurrences }, enabled] = await Promise.all([getMonthAgendaFresh(month), getAgendaEnabledFresh()]);
 
   const recurring = series.filter((s) => s.freq !== "none");
@@ -59,11 +78,20 @@ export default async function AdmPage({ searchParams }: PageProps<"/adm">) {
       </div>
 
       <div className="mt-10">
-        <MonthNav month={month} current={current} basePath="/adm" />
+        <MonthNav month={month} current={current} basePath="/adm" query={view === "lista" ? undefined : `visao=${view}`} />
       </div>
+
+      <ViewTabs view={view} month={month} current={current} />
 
       {series.length === 0 ? (
         <p className="py-20 text-center text-mute">Nenhum evento cadastrado neste mês.</p>
+      ) : view === "calendario" ? (
+        <PreviewNote enabled={enabled} hint={adminViews.calendarHint}>
+          <MonthCalendar month={month} occurrences={occurrences} hrefFor={occurrenceHref} className="hidden md:block" />
+          <EventList occurrences={occurrences} now={new Date()} className="md:hidden" />
+        </PreviewNote>
+      ) : view === "grade" ? (
+        <GridPreview enabled={enabled} month={month} series={series} occurrences={occurrences} />
       ) : (
         <>
           {recurring.length > 0 && (
@@ -146,6 +174,43 @@ export default async function AdmPage({ searchParams }: PageProps<"/adm">) {
         </>
       )}
     </>
+  );
+}
+
+/** Aula ou evento mensal: altera só a data; evento único: edita o próprio evento */
+const occurrenceHref = (o: Occurrence) => (o.freq === "none" ? `/adm/eventos/${o.eventId}` : `/adm/eventos/${o.eventId}/ocorrencias/${o.date}`);
+const blockHref = (b: TimetableBlock) => `/adm/eventos/${b.eventId}`;
+
+/** Moldura dos previews: dica de uso e aviso quando a agenda está oculta */
+function PreviewNote({ enabled, hint, children }: { enabled: boolean; hint: string; children: React.ReactNode }) {
+  return (
+    <section className="mt-10">
+      <p className="mb-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-mute">
+        {!enabled && <span className="border border-line px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-mute">{adminViews.hidden}</span>}
+        {hint}
+      </p>
+      {children}
+    </section>
+  );
+}
+
+/** A grade como aparece na Escola, com as aulas levando à edição */
+function GridPreview({ enabled, month, series, occurrences }: { enabled: boolean; month: YearMonth; series: AgendaEvent[]; occurrences: Occurrence[] }) {
+  const { grid, also } = splitMonth(series, occurrences);
+  const timetable = buildTimetable(grid, occurrences);
+
+  return (
+    <PreviewNote enabled={enabled} hint={adminViews.gridHint}>
+      <h2 className="mb-10 font-display text-[clamp(1.6rem,1.2rem+1.4vw,2.6rem)] leading-tight">
+        {escola.grade.title} <span className="italic text-gold-light">{formatMonthName(month)}</span>
+      </h2>
+      {timetable.blocks.length > 0 ? (
+        <WeeklyTimetable timetable={timetable} hrefFor={blockHref} />
+      ) : (
+        <p className="border-y border-line py-12 text-center text-mute">{adminViews.gridEmpty}</p>
+      )}
+      {also.length > 0 && <AlsoThisMonth occurrences={also} hrefFor={occurrenceHref} />}
+    </PreviewNote>
   );
 }
 

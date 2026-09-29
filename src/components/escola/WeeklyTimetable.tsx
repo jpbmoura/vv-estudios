@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { occurrenceLabels, weekdayNames, weekdayShort } from "@/content/agenda";
 import { escola } from "@/content/escola";
-import type { Timetable } from "@/lib/agenda/timetable";
+import type { Timetable, TimetableBlock } from "@/lib/agenda/timetable";
 
 const headClass = "text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-gold-light";
 
@@ -13,7 +14,7 @@ function BiweeklyTag() {
  * Uma aula ocupa todas as linhas do seu horário; aulas sobrepostas no mesmo dia dividem a coluna.
  * As linhas da tabela são o fundo `bg-line` aparecendo pelo `gap-px`.
  */
-export function WeeklyTimetable({ timetable }: { timetable: Timetable }) {
+export function WeeklyTimetable({ timetable, hrefFor }: { timetable: Timetable; hrefFor?: (b: TimetableBlock) => string }) {
   const { columns, rows, blocks } = timetable;
 
   // Primeira coluna de grade de cada dia (a 1ª é a dos horários)
@@ -66,19 +67,30 @@ export function WeeklyTimetable({ timetable }: { timetable: Timetable }) {
           <div key={`${e.row}:${e.col}`} aria-hidden className="bg-ink" style={{ gridColumn: e.col, gridRow: e.row + 2 }} />
         ))}
 
-        {blocks.map((b) => (
-          <div
-            key={b.key}
-            className="flex min-w-0 flex-col items-center justify-center bg-ink px-3 py-6 text-center transition-colors duration-700 ease-curtain hover:bg-ink-2"
-            style={{ gridColumn: firstCol.get(b.weekday)! + b.lane, gridRow: `${b.row + 2} / span ${b.span}` }}
-          >
-            <span className="max-w-full font-display text-[clamp(0.85rem,0.5rem+0.55vw,1.25rem)] uppercase leading-tight tracking-[0.02em] text-balance break-words text-bone">{b.title}</span>
-            {b.biweekly && <BiweeklyTag />}
-            <span className="sr-only">
-              {weekdayNames[b.weekday]}, {b.startTime} às {b.endTime}
-            </span>
-          </div>
-        ))}
+        {blocks.map((b) => {
+          const cell = {
+            className: "flex min-w-0 flex-col items-center justify-center bg-ink px-3 py-6 text-center transition-colors duration-700 ease-curtain hover:bg-ink-2",
+            style: { gridColumn: firstCol.get(b.weekday)! + b.lane, gridRow: `${b.row + 2} / span ${b.span}` },
+          };
+          const content = (
+            <>
+              <span className="max-w-full font-display text-[clamp(0.85rem,0.5rem+0.55vw,1.25rem)] uppercase leading-tight tracking-[0.02em] text-balance break-words text-bone">{b.title}</span>
+              {b.biweekly && <BiweeklyTag />}
+              <span className="sr-only">
+                {weekdayNames[b.weekday]}, {b.startTime} às {b.endTime}
+              </span>
+            </>
+          );
+          return hrefFor ? (
+            <Link key={b.key} href={hrefFor(b)} {...cell}>
+              {content}
+            </Link>
+          ) : (
+            <div key={b.key} {...cell}>
+              {content}
+            </div>
+          );
+        })}
       </div>
 
       {/* Celular: um bloco por dia, sem rolagem lateral */}
@@ -90,17 +102,31 @@ export function WeeklyTimetable({ timetable }: { timetable: Timetable }) {
               {blocks
                 .filter((b) => b.weekday === c.weekday)
                 .sort((a, b) => a.startTime.localeCompare(b.startTime))
-                .map((b) => (
-                  <li key={b.key} className="grid grid-cols-[6.5rem_1fr] items-baseline gap-4">
-                    <span className="text-sm text-mute">
-                      {b.startTime} – {b.endTime}
-                    </span>
-                    <span>
-                      <span className="block font-display text-xl uppercase leading-tight tracking-[0.04em] text-bone">{b.title}</span>
-                      {b.biweekly && <BiweeklyTag />}
-                    </span>
-                  </li>
-                ))}
+                .map((b) => {
+                  const row = "grid grid-cols-[6.5rem_1fr] items-baseline gap-4";
+                  const content = (
+                    <>
+                      <span className="text-sm text-mute">
+                        {b.startTime} – {b.endTime}
+                      </span>
+                      <span>
+                        <span className="block font-display text-xl uppercase leading-tight tracking-[0.04em] text-bone">{b.title}</span>
+                        {b.biweekly && <BiweeklyTag />}
+                      </span>
+                    </>
+                  );
+                  return (
+                    <li key={b.key}>
+                      {hrefFor ? (
+                        <Link href={hrefFor(b)} className={`${row} transition-colors duration-500 hover:text-gold-light`}>
+                          {content}
+                        </Link>
+                      ) : (
+                        <div className={row}>{content}</div>
+                      )}
+                    </li>
+                  );
+                })}
             </ul>
           </li>
         ))}

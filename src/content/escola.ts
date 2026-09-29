@@ -55,4 +55,11 @@ export const escola = {
     },
   ],
   footnote: "* Aulas oferecidas conforme a demanda.",
+  grade: {
+    eyebrow: "Grade horária",
+    title: "Nossa grade horária para",
+    timeHeader: "Horário",
+    alsoTitle: "Também neste mês",
+    note: "Horários sujeitos a alteração. Confirme sua turma pelo WhatsApp.",
+  },
 } as const;

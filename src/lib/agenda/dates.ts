@@ -106,3 +106,80 @@ export function formatShortDate(date: Date) {
 export function formatTime(date: Date) {
   return timeFmt.format(date);
 }
+
+/* ---------- Dias de calendário ("2026-09-25"), sem fuso: aritmética em UTC ---------- */
+
+/** Dia no formato "2026-09-25" */
+export type DateKey = string;
+
+const DAY_MS = 86_400_000;
+
+function dayNumber(date: DateKey) {
+  const [y, m, d] = date.split("-").map(Number);
+  return Date.UTC(y, m - 1, d) / DAY_MS;
+}
+
+function fromDayNumber(n: number): DateKey {
+  return new Date(n * DAY_MS).toISOString().slice(0, 10);
+}
+
+/** Diferença em dias (b - a) */
+export function daysBetween(a: DateKey, b: DateKey) {
+  return dayNumber(b) - dayNumber(a);
+}
+
+export function addDays(date: DateKey, days: number): DateKey {
+  return fromDayNumber(dayNumber(date) + days);
+}
+
+/** 0 = domingo … 6 = sábado */
+export function weekdayOf(date: DateKey) {
+  return (dayNumber(date) + 4) % 7; // 1970-01-01 foi uma quinta
+}
+
+export function daysInMonth(ym: YearMonth) {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
+
+/** Primeiro e último dia do mês */
+export function monthBounds(ym: YearMonth) {
+  return { first: `${ym}-01`, last: `${ym}-${pad(daysInMonth(ym))}` };
+}
+
+/** Hoje em Curitiba */
+export function todayKey(): DateKey {
+  return dayKey(new Date());
+}
+
+const dayFmt = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC", day: "numeric", month: "short" });
+const dayWeekdayFmt = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC", weekday: "long" });
+const numericFmt = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC", day: "2-digit", month: "2-digit" });
+
+const noon = (date: DateKey) => new Date(dayNumber(date) * DAY_MS + DAY_MS / 2);
+
+/** "25 de set." */
+export function formatDay(date: DateKey) {
+  return dayFmt.format(noon(date));
+}
+
+/** "sexta-feira" */
+export function formatDayWeekday(date: DateKey) {
+  return dayWeekdayFmt.format(noon(date));
+}
+
+/** "25/09" */
+export function formatDayNumeric(date: DateKey) {
+  return numericFmt.format(noon(date));
+}
+
+/** "19:00" → "19h"; "19:30" → "19h30" */
+export function formatHour(time: string) {
+  const [h, m] = time.split(":");
+  return m === "00" ? `${Number(h)}h` : `${Number(h)}h${m}`;
+}
+
+/** "19:00" + "22:00" → "19h–22h" */
+export function timeRange(start: string, end: string) {
+  return `${formatHour(start)}–${formatHour(end)}`;
+}

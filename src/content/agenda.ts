@@ -26,3 +26,24 @@ export const agenda = {
     title: "Próximos eventos",
   },
 };
+
+/** Índice = dia da semana (0 = domingo) */
+export const weekdayNames = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"] as const;
+export const weekdayShort = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
+
+/** Opções de repetição do form do /adm (quinzenal = semanal a cada 2 semanas) */
+export const recurrenceOptions = [
+  { value: "none", label: "Não se repete" },
+  { value: "daily", label: "Todos os dias" },
+  { value: "weekly", label: "Semanal" },
+  { value: "biweekly", label: "Quinzenal" },
+  { value: "monthly", label: "Mensal" },
+] as const;
+
+export type RecurrenceOption = (typeof recurrenceOptions)[number]["value"];
+
+export const occurrenceLabels = {
+  cancelled: "Cancelada",
+  modified: "Horário especial",
+  biweekly: "Quinzenal",
+};

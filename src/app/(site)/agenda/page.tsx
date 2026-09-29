@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { EventList } from "@/components/agenda/EventList";
+import { MonthCalendar } from "@/components/agenda/MonthCalendar";
 import { MonthNav } from "@/components/agenda/MonthNav";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { Button } from "@/components/ui/Button";
@@ -9,7 +10,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { agenda } from "@/content/agenda";
 import { whatsappLink } from "@/content/site";
 import { currentMonth, formatMonthName, parseMonth, shiftMonth } from "@/lib/agenda/dates";
-import { getEventsByMonth, type AgendaEvent } from "@/lib/agenda/queries";
+import { getMonthAgenda, type Occurrence } from "@/lib/agenda/queries";
 import { getAgendaEnabled } from "@/lib/settings";
 
 export const metadata: Metadata = {
@@ -32,10 +33,10 @@ export default async function AgendaPage({ searchParams }: PageProps<"/agenda">)
   // Passado livre; futuro só até o próximo mês
   const month = asked && asked <= max ? asked : current;
 
-  let events: AgendaEvent[] = [];
+  let occurrences: Occurrence[] = [];
   let failed = false;
   try {
-    events = await getEventsByMonth(month);
+    ({ occurrences } = await getMonthAgenda(month));
   } catch (err) {
     console.error("[agenda] erro ao carregar eventos", err);
     failed = true;
@@ -62,8 +63,13 @@ export default async function AgendaPage({ searchParams }: PageProps<"/agenda">)
 
         <MonthNav month={month} current={current} basePath="/agenda" max={max} />
 
-        {events.length > 0 ? (
-          <EventList events={events} now={new Date()} />
+        {occurrences.some((o) => !o.cancelled) ? (
+          <>
+            <FadeIn className="hidden md:block">
+              <MonthCalendar month={month} occurrences={occurrences} />
+            </FadeIn>
+            <EventList occurrences={occurrences} now={new Date()} className="md:hidden" />
+          </>
         ) : (
           <div className="flex flex-col items-center border-b border-line py-24 text-center md:py-32">
             <p className="font-display text-3xl italic text-bone/90 md:text-4xl">

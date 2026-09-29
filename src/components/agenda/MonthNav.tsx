@@ -7,28 +7,38 @@ type Props = {
   basePath: string;
   /** Último mês navegável (a agenda pública vai só até o próximo mês) */
   max?: YearMonth;
+  /** Primeiro mês navegável */
+  min?: YearMonth;
+  /** Âncora da seção, para a página não pular ao topo (ex.: "grade") */
+  hash?: string;
 };
 
 const linkClass =
   "group inline-flex items-center gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold-light transition-colors duration-500 hover:text-bone";
 
-export function MonthNav({ month, current, basePath, max }: Props) {
+export function MonthNav({ month, current, basePath, max, min, hash }: Props) {
   const prev = shiftMonth(month, -1);
   const next = shiftMonth(month, 1);
+  const hasPrev = !min || prev >= min;
   const hasNext = !max || next <= max;
-  const href = (ym: YearMonth) => (ym === current ? basePath : `${basePath}?mes=${ym}`);
+  const anchor = hash ? `#${hash}` : "";
+  const href = (ym: YearMonth) => `${ym === current ? basePath : `${basePath}?mes=${ym}`}${anchor}`;
 
   return (
     <nav aria-label="Navegar entre meses" className="flex items-center justify-between gap-4 border-y border-line py-5">
-      <Link href={href(prev)} scroll={false} className={linkClass}>
-        <span aria-hidden className="transition-transform duration-500 ease-curtain group-hover:-translate-x-1">
-          ←
-        </span>
-        <span className="capitalize">{formatMonthName(prev)}</span>
-      </Link>
+      {hasPrev ? (
+        <Link href={href(prev)} scroll={false} className={linkClass}>
+          <span aria-hidden className="transition-transform duration-500 ease-curtain group-hover:-translate-x-1">
+            ←
+          </span>
+          <span className="capitalize">{formatMonthName(prev)}</span>
+        </Link>
+      ) : (
+        <span aria-hidden className="w-16" />
+      )}
 
       {month !== current && (
-        <Link href={basePath} scroll={false} className="link-underline pb-1 text-[0.66rem] font-medium uppercase tracking-[0.22em] text-bone/70 hover:text-bone">
+        <Link href={href(current)} scroll={false} className="link-underline pb-1 text-[0.66rem] font-medium uppercase tracking-[0.22em] text-bone/70 hover:text-bone">
           Mês atual
         </Link>
       )}

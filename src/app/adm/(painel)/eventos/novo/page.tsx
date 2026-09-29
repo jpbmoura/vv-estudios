@@ -15,7 +15,20 @@ export default async function NovoEventoPage({ searchParams }: PageProps<"/adm/e
       <EventForm
         id={null}
         backHref={`/adm?mes=${month}`}
-        initial={{ title: "", detail: "", date, time: "19:00", location: "", category: "espetaculo", link: "" }}
+        initial={{
+          title: "",
+          detail: "",
+          date,
+          time: "19:00",
+          endTime: "20:00",
+          location: "",
+          category: "espetaculo",
+          link: "",
+          freq: "none",
+          weekdays: "",
+          monthlyMode: "day",
+          until: "",
+        }}
       />
     </>
   );

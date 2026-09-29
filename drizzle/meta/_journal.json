@@ -15,6 +15,20 @@
       "when": 1790355838214,
       "tag": "0001_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790699573307,
+      "tag": "0002_recurrence",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790699573777,
+      "tag": "0003_drop_starts_at",
+      "breakpoints": true
     }
   ]
 }

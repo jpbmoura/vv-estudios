@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "test": "tsx --test src/lib/agenda/recurrence.test.ts src/lib/agenda/timetable.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",
@@ -31,6 +32,7 @@
     "eslint-config-next": "16.3.6",
     "sharp": "^0.35.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }

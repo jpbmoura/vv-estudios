@@ -173,13 +173,4 @@ export function formatDayNumeric(date: DateKey) {
   return numericFmt.format(noon(date));
 }
 
-/** "19:00" → "19h"; "19:30" → "19h30" */
-export function formatHour(time: string) {
-  const [h, m] = time.split(":");
-  return m === "00" ? `${Number(h)}h` : `${Number(h)}h${m}`;
-}
-
-/** "19:00" + "22:00" → "19h–22h" */
-export function timeRange(start: string, end: string) {
-  return `${formatHour(start)}–${formatHour(end)}`;
-}
+export { formatHour, timeRange } from "@/lib/time";

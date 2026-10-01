@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { MonthNav } from "@/components/agenda/MonthNav";
-import { AlsoThisMonth } from "@/components/escola/AlsoThisMonth";
 import { ClassList } from "@/components/escola/ClassList";
 import { WeeklyTimetable } from "@/components/escola/WeeklyTimetable";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -11,38 +9,29 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { Rich } from "@/components/ui/Rich";
 import { escola } from "@/content/escola";
-import { currentMonth, formatMonthName, parseMonth, shiftMonth, type YearMonth } from "@/lib/agenda/dates";
-import { getMonthAgenda } from "@/lib/agenda/queries";
-import { buildTimetable, splitMonth } from "@/lib/agenda/timetable";
-import { getAgendaEnabled } from "@/lib/settings";
+import { getActiveClasses } from "@/lib/grade/queries";
+import { buildTimetable } from "@/lib/grade/timetable";
+import { getGradeEnabled } from "@/lib/settings";
 
 export const metadata: Metadata = {
   title: escola.title,
   description: escola.intro[0],
 };
 
-/** Grade do mês a partir da agenda; null quando a agenda está desligada, vazia ou fora do ar */
-async function loadGrade(month: YearMonth) {
-  if (!(await getAgendaEnabled())) return null;
+/** Grade semanal; null quando está desligada, vazia ou fora do ar */
+async function loadGrade() {
+  if (!(await getGradeEnabled())) return null;
   try {
-    const { series, occurrences } = await getMonthAgenda(month);
-    const { grid, also } = splitMonth(series, occurrences);
-    const timetable = buildTimetable(grid, occurrences);
-    if (timetable.blocks.length === 0 && also.every((o) => o.cancelled)) return null;
-    return { timetable, also };
+    const timetable = buildTimetable(await getActiveClasses());
+    return timetable.blocks.length > 0 ? timetable : null;
   } catch (err) {
     console.error("[escola] erro ao carregar a grade", err);
     return null;
   }
 }
 
-export default async function EscolaPage({ searchParams }: PageProps<"/escola">) {
-  const { mes } = await searchParams;
-  const current = currentMonth();
-  const next = shiftMonth(current, 1);
-  // Só o mês atual e o próximo
-  const month = parseMonth(mes) === next ? next : current;
-  const grade = await loadGrade(month);
+export default async function EscolaPage() {
+  const grade = await loadGrade();
 
   return (
     <>
@@ -85,20 +74,11 @@ export default async function EscolaPage({ searchParams }: PageProps<"/escola">)
           <FadeIn>
             <Eyebrow>{escola.grade.eyebrow}</Eyebrow>
           </FadeIn>
-          <h2 className="mt-8 mb-12 max-w-3xl font-display text-title md:mb-16">
-            {escola.grade.title} <span className="italic text-gold-light">{formatMonthName(month)}</span>
-          </h2>
+          <h2 className="mt-8 mb-12 max-w-3xl font-display text-title md:mb-16">{escola.grade.title}</h2>
 
-          <div className="mb-12 md:mb-16">
-            <MonthNav month={month} current={current} basePath="/escola" min={current} max={next} hash="grade" />
-          </div>
-
-          {grade.timetable.blocks.length > 0 && (
-            <FadeIn>
-              <WeeklyTimetable timetable={grade.timetable} />
-            </FadeIn>
-          )}
-          {grade.also.length > 0 && <AlsoThisMonth occurrences={grade.also} />}
+          <FadeIn>
+            <WeeklyTimetable timetable={grade} />
+          </FadeIn>
           <p className="mt-8 text-sm text-mute">{escola.grade.note}</p>
         </section>
       )}

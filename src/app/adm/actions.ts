@@ -47,7 +47,6 @@ function echo(formData: FormData) {
 function refreshAgenda() {
   updateTag(EVENTS_TAG);
   revalidatePath("/agenda");
-  revalidatePath("/escola");
   revalidatePath("/");
 }
 

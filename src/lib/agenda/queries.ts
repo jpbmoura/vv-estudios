@@ -4,15 +4,13 @@ import { unstable_cache } from "next/cache";
 import { db } from "@/db";
 import { eventExceptions, events, type Event, type EventException } from "@/db/schema";
 import { addDays, monthBounds, todayKey, type DateKey, type YearMonth } from "./dates";
+import { hhmm } from "@/lib/time";
 import { expandOccurrences, isSeriesDate } from "./recurrence";
 import type { AgendaEvent, AgendaException, Freq, MonthlyMode, Occurrence } from "./types";
 
 export type { AgendaEvent, AgendaException, Occurrence } from "./types";
 
 export const EVENTS_TAG = "events";
-
-/** O Postgres devolve "19:00:00" */
-const hhmm = (time: string) => time.slice(0, 5);
 
 function toAgendaEvent(e: Event): AgendaEvent {
   return {

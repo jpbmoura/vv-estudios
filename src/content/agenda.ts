@@ -27,9 +27,7 @@ export const agenda = {
   },
 };
 
-/** Índice = dia da semana (0 = domingo) */
-export const weekdayNames = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"] as const;
-export const weekdayShort = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"] as const;
+export { weekdayNames, weekdayShort } from "./weekdays";
 
 /** Opções de repetição do form do /adm (quinzenal = semanal a cada 2 semanas) */
 export const recurrenceOptions = [
@@ -45,7 +43,6 @@ export type RecurrenceOption = (typeof recurrenceOptions)[number]["value"];
 export const occurrenceLabels = {
   cancelled: "Cancelada",
   modified: "Horário especial",
-  biweekly: "Quinzenal",
 };
 
 /** Abas do /adm */
@@ -53,11 +50,8 @@ export const adminViews = {
   tabs: [
     { value: "lista", label: "Lista" },
     { value: "calendario", label: "Calendário" },
-    { value: "grade", label: "Grade" },
   ],
   calendarHint: "Clique num evento para alterar ou cancelar só aquela data.",
-  gridHint: "Clique numa aula para editar a série inteira.",
-  gridEmpty: "Nenhuma aula semanal neste mês.",
   hidden: "Pré-visualização: a agenda está oculta no site.",
 } as const;
 

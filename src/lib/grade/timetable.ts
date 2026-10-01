@@ -1,9 +1,8 @@
-import { weekdayOf } from "./dates";
-import type { AgendaEvent, Occurrence } from "./types";
+import type { SchoolClass } from "./types";
 
 export type TimetableBlock = {
   key: string;
-  eventId: string;
+  classId: string;
   weekday: number;
   /** Coluna dentro do dia, quando há horários sobrepostos */
   lane: number;
@@ -11,8 +10,6 @@ export type TimetableBlock = {
   row: number;
   span: number;
   title: string;
-  category: string;
-  location: string | null;
   startTime: string;
   endTime: string;
   biweekly: boolean;
@@ -25,20 +22,6 @@ export type Timetable = {
   blocks: TimetableBlock[];
 };
 
-const isGridFreq = (s: { freq: string }) => s.freq === "daily" || s.freq === "weekly";
-
-/**
- * Separa o mês entre a grade semanal (séries diárias/semanais/quinzenais) e a lista
- * "Também neste mês": eventos únicos, mensais e as datas canceladas ou alteradas das séries da grade.
- */
-export function splitMonth(series: AgendaEvent[], occurrences: Occurrence[]) {
-  const active = new Set(occurrences.filter((o) => !o.cancelled).map((o) => o.eventId));
-  const grid = series.filter((s) => isGridFreq(s) && active.has(s.id));
-  const gridIds = new Set(grid.map((s) => s.id));
-  const also = occurrences.filter((o) => !gridIds.has(o.eventId) || o.cancelled || o.modified);
-  return { grid, also };
-}
-
 /** Ordem de segunda a domingo */
 const weekOrder = (weekday: number) => (weekday + 6) % 7;
 
@@ -46,24 +29,21 @@ const weekOrder = (weekday: number) => (weekday + 6) % 7;
  * Monta a grade horária: as linhas são os intervalos entre todos os horários de início/fim
  * (sem os buracos que nenhuma aula cobre), e cada aula ocupa as linhas do seu horário.
  */
-export function buildTimetable(grid: AgendaEvent[], occurrences: Occurrence[]): Timetable {
+export function buildTimetable(classes: SchoolClass[]): Timetable {
   type Raw = Omit<TimetableBlock, "lane" | "row" | "span">;
   const raw: Raw[] = [];
 
-  for (const s of grid) {
-    // Um bloco por dia da semana em que a série realmente acontece no mês
-    const weekdays = new Set(occurrences.filter((o) => o.eventId === s.id && !o.cancelled).map((o) => weekdayOf(o.date)));
-    for (const weekday of weekdays) {
+  // Um bloco por dia da semana da aula
+  for (const c of classes) {
+    for (const weekday of new Set(c.weekdays)) {
       raw.push({
-        key: `${s.id}:${weekday}`,
-        eventId: s.id,
+        key: `${c.id}:${weekday}`,
+        classId: c.id,
         weekday,
-        title: s.title,
-        category: s.category,
-        location: s.location,
-        startTime: s.startTime,
-        endTime: s.endTime,
-        biweekly: s.freq === "weekly" && s.repeatEvery === 2,
+        title: c.title,
+        startTime: c.startTime,
+        endTime: c.endTime,
+        biweekly: c.biweekly,
       });
     }
   }

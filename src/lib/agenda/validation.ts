@@ -1,4 +1,5 @@
 import { categories, recurrenceOptions, type Category, type RecurrenceOption } from "@/content/agenda";
+import { checkTimes } from "@/lib/time";
 import { monthlyOptions } from "./recurrence";
 import type { Freq, MonthlyMode } from "./types";
 
@@ -24,14 +25,6 @@ export type FieldErrors = Partial<
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 const isDate = (v: string) => /^\d{4}-\d{2}-\d{2}$/.test(v);
-const isTime = (v: string) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v);
-
-/** Horários comuns ao evento e às alterações de uma data */
-function checkTimes(time: string, endTime: string, errors: FieldErrors) {
-  if (!isTime(time)) errors.time = "Informe o horário de início.";
-  if (!isTime(endTime)) errors.endTime = "Informe o horário de término.";
-  else if (isTime(time) && endTime <= time) errors.endTime = "O término deve ser depois do início.";
-}
 
 export function parseEventForm(fd: FormData): { data: EventInput } | { errors: FieldErrors } {
   const title = str(fd, "title");

@@ -57,9 +57,9 @@ export const escola = {
   footnote: "* Aulas oferecidas conforme a demanda.",
   grade: {
     eyebrow: "Grade horária",
-    title: "Nossa grade horária para",
+    title: "Nossa grade horária",
     timeHeader: "Horário",
-    alsoTitle: "Também neste mês",
+    biweekly: "Quinzenal",
     note: "Horários sujeitos a alteração. Confirme sua turma pelo WhatsApp.",
   },
 } as const;

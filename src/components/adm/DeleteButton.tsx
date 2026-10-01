@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { deleteEvent } from "@/app/adm/actions";
 
-/** Exclusão em dois cliques, sem window.confirm */
-export function DeleteButton({ id, month }: { id: string; month: string }) {
+/** Exclusão em dois cliques, sem window.confirm; `action` é uma server action já com o id (bind) */
+export function DeleteButton({ action }: { action: () => Promise<void> }) {
   const [confirming, setConfirming] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -26,12 +25,7 @@ export function DeleteButton({ id, month }: { id: string; month: string }) {
   }
 
   return (
-    <button
-      type="button"
-      disabled={pending}
-      onClick={() => startTransition(() => deleteEvent(id, month))}
-      className={`${cls} text-red-300 hover:text-red-200`}
-    >
+    <button type="button" disabled={pending} onClick={() => startTransition(() => action())} className={`${cls} text-red-300 hover:text-red-200`}>
       {pending ? "Excluindo…" : "Confirmar exclusão"}
     </button>
   );

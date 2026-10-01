@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { monthWeeks } from "./calendar";
 import { zonedToUtc } from "./dates";
 import { describeRecurrence, expandOccurrences, isSeriesDate, monthlyOptions } from "./recurrence";
 import type { AgendaEvent, AgendaException } from "./types";
@@ -131,4 +132,11 @@ test("descrições em português", () => {
 test("opções mensais", () => {
   assert.deepEqual(monthlyOptions("2026-10-13"), { day: "Todo dia 13", nth: "Toda 2ª terça" });
   assert.equal(monthlyOptions("2026-10-30").last, "Toda última sexta");
+});
+
+test("semanas do calendário começam no domingo", () => {
+  const weeks = monthWeeks("2026-11");
+  assert.equal(weeks[0][0].date, "2026-11-01");
+  assert.equal(weeks.at(-1)!.at(-1)!.date, "2026-12-05");
+  assert.equal(weeks.flat().filter((d) => d.inMonth).length, 30);
 });

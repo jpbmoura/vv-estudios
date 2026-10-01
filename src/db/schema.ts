@@ -73,3 +73,31 @@ export const settings = pgTable("settings", {
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Grade escolar: aulas fixas da semana, independentes da agenda.
+ * Horas de parede em Curitiba; a mesma aula pode acontecer em vários dias no mesmo horário.
+ */
+export const schoolClasses = pgTable(
+  "school_classes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    /** 0 = domingo … 6 = sábado, pelo menos um */
+    weekdays: smallint("weekdays").array().notNull(),
+    startTime: time("start_time").notNull(),
+    endTime: time("end_time").notNull(),
+    /** Só a etiqueta "Quinzenal" na grade */
+    biweekly: boolean("biweekly").notNull().default(false),
+    /** Pausada = some do site, continua no /adm */
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    check("school_classes_time_order", sql`${t.endTime} > ${t.startTime}`),
+    check("school_classes_weekdays", sql`cardinality(${t.weekdays}) > 0`),
+  ],
+);
+
+export type SchoolClassRow = typeof schoolClasses.$inferSelect;

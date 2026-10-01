@@ -10,7 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "test": "tsx --test src/lib/agenda/recurrence.test.ts src/lib/agenda/timetable.test.ts"
+    "test": "tsx --test src/lib/agenda/recurrence.test.ts src/lib/grade/timetable.test.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",

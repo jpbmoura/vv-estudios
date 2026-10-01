@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { occurrenceLabels, weekdayNames, weekdayShort } from "@/content/agenda";
 import { escola } from "@/content/escola";
-import type { Timetable, TimetableBlock } from "@/lib/agenda/timetable";
+import { weekdayNames, weekdayShort } from "@/content/weekdays";
+import type { Timetable, TimetableBlock } from "@/lib/grade/timetable";
 
 const headClass = "text-[0.66rem] font-semibold uppercase tracking-[0.28em] text-gold-light";
 
 function BiweeklyTag() {
-  return <span className="mt-3 inline-block border border-gold/60 px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-gold-light">{occurrenceLabels.biweekly}</span>;
+  return <span className="mt-3 inline-block border border-gold/60 px-2 py-0.5 text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-gold-light">{escola.grade.biweekly}</span>;
 }
 
 /**
- * Grade horária do mês: linhas são os horários, colunas os dias da semana que têm aula.
+ * Grade horária da semana: linhas são os horários, colunas os dias da semana que têm aula.
  * Uma aula ocupa todas as linhas do seu horário; aulas sobrepostas no mesmo dia dividem a coluna.
  * As linhas da tabela são o fundo `bg-line` aparecendo pelo `gap-px`.
  */
